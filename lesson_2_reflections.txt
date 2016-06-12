@@ -34,3 +34,89 @@ repositoryにどんなcommitがあるのかgit logで見てみる。
 エラー fatal:bad default version !HEAD!
 Gitでは現在のcommitをHEADと呼ぶ。このエラーはrepositoryに何もcommitが無いのでコメント履歴を表示
 出来ないと伝えてくれている。
+
+git status
+git statusは直近のcommitから、どのファイルが変更されたか表示してくれる。
+commitが一個もない時は、Initial commitと表示される。
+Untracked Filesと表示されたファイルは、まだtrackの履歴がない。
+
+What happens when you initialize a repository? Why do you need to do it?
+repositoryを初期化した時、なにが起きましたか？どうして初期化する必要がありますか？
+
+git initを実行すると不可視フォルダ.gitがが作成されて、そこに履歴管理等のメタデータが準備される。
+初期化しないと、単なる普通のディレクトリのまんまでバージョンコントロール出来ない。
+
+repositoryに変更を追加するやり方
+作業中のディレクトリに3つのファイルがある。一方には空の新規作成したrepositoryがある。
+このrepositoryにcommitを追加したい。この自分のファイルの現在の状態スナップショットを
+作成するにはgit commitを実行するだけで良いのでは？と思うかもしれないが、
+gitはこれよりも少し操作を要求する。
+一つの論理的変更(logical change)につき、一つのcommitで、出来るだけcommitは小さく保つの
+が良い考えだということを思い出して。
+どんな変更がcommitされるべきかを厳密に明記することを要求することによってGitはこれを容易にしている。
+これを実現するために、gitにはStaging Areaと呼ばれる中間地帯、媒介地帯を利用する。
+Staging Areaには一回に1つのファイルを追加出来る。一回に一個づつStaging Areaに追加した後に、
+GitはStaging Areaの全内容(ファイル)を1つのcommitとしてまとめて、それをrepositoryに追加する。
+これをコマンドラインで見てみよう。
+
+今までrepositoryに何を追加したのか確認する場合にはgit statusを使う。
+新規作成したrepositoryは1回もcommitされていないのでInitial commitとUntracked Filesが表示される。
+
+Staging Areaにファイルを追加するにはgit addコマンドを使う。
+git add ファイル名
+一個ずつ実行してStaging Areaにファイルを登録していく。
+
+Staging Areaに登録されたかどうかをgit statusで確認する。
+Changes to be commited:以下にnew file:として登録されたファイルが表示される。
+
+新規commitを作成する際には、これらのファイル(Staging Areaに登録されたファイル)が含まれる。
+
+lesson1とlesson2は論理的に分離しているのでgit addしなかった。
+
+concept map
+
+initはrepositoryを新規作成する。initはrepository上で動作する。(operates-on)
+
+staging area。commitを作る前に、ファイルをstaging areaに登録する。なので、staging areaは
+commitに密接に関連している。
+
+git addとgit statusは両方ともstaging areaでcommitを作るのを助ける。
+
+git statusはworking directoryの内容も表示する。なのでgit statusはworking directoryと
+staging area上で動作(operates-on)
+
+git addはstaging area上で動作(operates-on)
+
+How is the staging area different from the working directory and the repository?
+What value do you think it offers?
+staging areaはworking　directoryとrepositoryとどのように違うのか？
+それはどんな価値を提供していると思いますか？
+
+staging areaはrepositoryにcommitするための準備をする場所。
+working areaのファイル群からrepositoryに置きたいファイルを自分で選んで1個づつ
+staging areaに登録(git add)してから、まとめてrepositoryに置く。
+working areaは単なるディレクトリ、repositoryはgit initで初期化され、メタデータがある場所、
+staging areaはworking directoryとrepositoryを媒介するバーチャルな場所。
+
+Lesson 1でworkplaceを正しく設定した場合、git commitを実行すると、すぐにcommit messageの
+入力になる。
+
+git commitの代わりにgit commit -m "Commit message"でcommit messageを指定することができる。
+
+git messageのスタイルは人によって異なるが、http://udacity.github.io/git-styleguide/
+を参考にすると良い。
+
+staging areaにファイルを登録したので、今度はそれらの変更をcommitするやり方に進もう。
+
+git commit
+git commitを実行すると、Lesson 1で設定したおかげでEditorが開くのでcommit messageを入力する。
+
+commit messageには過去形は使わない。命令形で書く。"変更した"ではなく"変更"で良い
+
+commit messageの編集が終わったら、ファイルを保存してeditorを終了。
+
+git commit出来たかgit logで確認する。
+
+git statusを実行してみると、Initial commitの注意書きが消えているはず。
+working areaにrepositoryに登録しなかったファイルが残っている場合には、
+Untracked Files:が表示される。
