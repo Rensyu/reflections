@@ -1,0 +1,142 @@
+diff -u 元のファイル　新しいファイル
+
+-uオプションはdiffの結果をunified(統合)型式で表示する。
+範囲は@@で囲まれて先頭の行番号と、そこからの行数
+
+追加された行には+,削除された行には-が付く。未変更は「 」半角スペース。
+
+プログラムのバグをdiffで比較するためには、適度な長さ(80~120文字)以内で改行したほうが良い。
+
+復習は大事。科学的に証明済。
+
+ヴァージョンコントロールはファイルネームを変更して保存したり、Dropboxは30日、Google Docsを
+使用しても行える。WikiPediaも振るいバージョンが見られる。
+
+WikiPediaやGoogle Docsはプログラム記述用途にはデザインされていない。
+
+How could having easy access to the entire history of a file make you a more efficient programmer in the long term?
+
+ファイルの全履歴に簡単にアクセスできることが、長い目でみて、どれだけあなたをもっと効率的なプログラマーにするか？
+
+ファイルを更新してバグが出てもバージョンを戻すことでバグを見つけやすくなる。
+大勢で作業できる。
+
+git log
+今まで作ったcommit=チェックポイントが全て表示される。
+各commitにはID,Author,Dateとメッセージが表示される。メッセージは前回のcommitからの変更点を
+説明。IDはシリアルナンバーの一種。
+
+git diff
+導入されたcommit変更内容を確認できる。普通のdiffコマンドのように2つのファイルを比較するのではなく
+gitにある異なるバージョンを比較することができる。
+比較したい1つめのcommitのIDをコピペ、次に2つめのcommitのIDをコピペ。
+
+未変更は黒
+赤字に-マイナスは削除された行、古いバージョンにしか存在しない行
+グリーンに+プラスは追加された行、新しいバージョンにしか存在しない行
+
+バージョンコントロールのコンセプトマップ　〜の一種はブルー矢印、~の一部はグリーン矢印、~上で動作は紫矢印
+バージョンコントロールのうちの一種がGit
+Gitの一部、一機能、一概念がcommit
+git diffはcommit上で動作する。
+
+commitの頻度は少ないほうがよい。diffが大きすぎても小さすぎても分かりにくい。
+基本ルールとして論理的変更の際にcommitする。する。例えば誤字を修正してファイルの違う部分のバグが治したら
+各変更1回づつcommitする。何故なら、各変更は論理的に分離されているから。
+
+What do you think are the pros and cons of manually choosing when to create a commit, like you do in Git, vs having versions automatically saved, like Google Docs does?
+
+gitでやるように、手動でいつcommitするか選択するのと、Google Docsがやるように自動でバージョンを作る事の
+長所と短所は何か考えよう。
+
+自動は何も考えないでどんどんバージョンが出来るが論理的変更に限らないのでバージョンが煩雑化
+gitのように主導は論理的変更があった場合だけcommitするようにするが、判断が難しい。
+
+プロジェクトで働く時、一緒に追跡したい複数のファイルがあることがよくある。
+Gitでは、このようなファイルの集まりをrepository(収納場所、倉庫)と呼ぶ。
+
+commitは自分のrepositoryにある全てのファイルのスナップショット。
+
+git log --stat
+--statオプションを付けると、各commitでどのファイルが変更されたのか統計値が分かる。
+各commitは、そのcommitでどのファイルが影響を受けたか表示する。
+グリーンのプラス+は追加された行、赤のマイナス-は削除された行。
+プラスとマイナスの数は変更のサイスに比例する。
+Qを押すとgit log終了。
+
+Why do you think some version control systems, like Git, allow saving multiple
+files in one commit, while others, like Google Docs, treat each file separately?
+
+何故Gitのようなあるバージョンコントロールが複数のファイルを一回のcommitで保存するのを許可する一方、
+Google Docsのようなバージョンコントロールは各ファイルを別々に扱うと思いますか？
+
+Gitは一つのリポジトリ配下に1つのプロジェクトに関連したファイルを擁し一括してトラックするため。
+Google Docsにはそのような概念がないため。
+
+git clone URL
+git cloneに続けて他のrepositoryのURLを入力。
+
+git config --global color.ui.auto
+これでdiffがカラー表示になる。削除行が赤、追加行がグリーン
+gitの設定はgit config。--globalオプションは、一つのrepositoryだけでなく、自分のgitの全ての
+repositoryに適用される。
+
+How can you use the commands git log and git diff to view the history of files?
+
+ファイルの履歴を見るのにコマンドgit logとgit diffはどのように使用できましたか？
+
+git logを実行後、メッセージに注目。探しているcomittのメッセージがあったら、そのIDに注目。
+1つ前のcommitのIDもチェック。
+git diff 1つ前のID 該当するcommitのIDを実行して赤の削除行、緑の追加行をチェック。
+@@は変更の範囲。最初の数字が先頭行、次の数字が、先頭行からの行数。数字の前の記号はマイナスが古いcomitt,
+プラスは新しいcommitを意味する。
+
+Git repositoryはGitによってトラックされる結合ユニットとしての一連の複数ファイル。
+自分のPCに何個もrepositoryを持つ事ができる。
+repositoryはGitの一部で、commitはrepositoryの一部。
+cloneは既に存在するrepositoryを取り、新規に同じものを作成する。 cloneはrepository上で動作する。
+
+git logはrepositoryにある現在のcommitよりも前のcommitを表示する。
+要するにcommitのリストを表示する。
+logはcommit上で動作する。
+
+Git Errors and Warnings Solution Gitエラーと警告　解決法
+Should not be doing an octopus
+タコしてはいけません。
+タコはGitが様々なヴァージョンのコードを一緒に使用する戦略です。
+あなたが不適切な状況でこの戦略を使用しようとすると、このメッセージが表示されることがあります。
+
+あなたは「切り離されたHEAD」状態にあります
+Gitでは、自分が現在いる(作業中の)commitをHEADと呼びます。次の動画で見てみますが、
+一つ前のcommitに切り替えることによって、HEADをdetach(切り離す)ことが出来ます。
+そんな風に聞こえても、実際には、HEADをdetachするのは悪いことではありません。
+Gitはあなたがそうしていることを自覚しているのか、単に警告しているだけです。
+
+git checkout
+一時的にファイルを以前のcommitの状態に戻す。前のヴァージョンを復元するようなもの。
+SVNのcheckoutとは違う。Gitではcommitをcheckoutすることは、全ファイルをリセットして
+以前にcommitされた状態にすることを意味する。
+
+どうして自分のコードを以前のバージョンにcheckoutするのか？
+もしバグが見つかったとして、どっちのcommitにバグがあるのか分からないからテストしたい時、
+以前のバージョンをcheckoutしてコードを実行する。
+
+checkoutすると'detached HEAD' 状態になる。この状態の時に、変更を加えるとどうなるか？
+そのcommitは履歴のどこに適合するのか？
+
+How might using version control make you more confident to make changes that could break something?
+バージョンコントロールを使うことで、どの程度まで何かを壊し得る変更でも自信を持って行えますか？
+checkoutする時は最新のcommitのIDを忘れないようにメモっておけば、いつでも戻れる。
+バージョンコントロールはリスクテイカー。プロジェクト全体を破壊することなくコードに変更を加えられる。
+バージョンコントロール無しだと、非常に小さい変更の繰り返しで試すしかない。
+
+Reflect: How Do You Want to Use Git?
+どのようにGitを使いたいですか？
+便利に使いたい。
+
+Now that you have your workspace set up, what do you want to try using Git for?
+さて、ワークスペースが準備出来ました、Gitを何に使いたいですか？
+MIUIの日本語化作業に使用したい。
+
+In case you forget it and need it again, here is the ID of the most recent commit
+ in the repository: fa4c6bade4970c282b3870ad16f1bde8164663a9

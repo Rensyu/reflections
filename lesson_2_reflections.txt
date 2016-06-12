@@ -1,0 +1,36 @@
+lesson2ではrepositoryの新規作成とcommitの仕方を学ぶ。
+また、Gitにおけるmergeやbranch、そしてこれらのツールを使用して自分のプロジェクトの
+試験的変更を追跡する方法を学ぶ。
+
+lesson3ではGitHubを使って複数のマシーンに渡って協力的にGitを使用する方法を学ぶ。
+
+何がrepositoryをrepositoryたらしめるのか？
+repositoryは、大部分はPCの普通のディレクトリと同じに見える。唯一の本当に異なる点は、git repositoryは
+repositoryが作成されてからのrepositoryの履歴のメタデータの束を貯めている。
+メタデータはmainディレクトリにあるが、不可視ディレクトリにしまい込まれている。
+不可視ファイルや不可視ディレクトリはユーザーが直接やり取りする必要がない場合によく使用される。
+不可視ディレクトリや不可視ファイルはピリオドから始まる名前がついている。
+
+ls -aと-aオプションを付けると不可視ディレクトリや不可視ファイルが見られる。
+
+前回、既存のrepositoryをクローンしたが、全てのメタデータを自分のローカルPCに持ってきたということだ。
+
+もしrepositoryをスクラッチから作成したい場合は、gitに明確に新しいrepositoryを作りたいと言わなければならない。
+
+repositoryの新規作成はオフラインで出来る。そのrepositoryにcommitを追加するのもオフラインで出来る。
+空のディレクトリに後でファイルを作成することも、ファイルが既にあるディレクトリにrepositoryを作成することも
+出来る。
+
+git init
+初期化、またはGit repositoryを新規作成する。不可視の.gitディレクトリが作成される。ls -aで確認出来る。
+新規作成したrepositoryにはcommitは0個。commitは自分でする。
+ディレクトリに全て揃っていれば、Gitは最初のcommitが出来るかもしれないが、いくつかの理由により、それは
+出来ない。
+第一に、あなたがディレクトリの全ファイルをcommitしたくないかもしれない。
+第二に、もしGitがあなたの代わりにcommitしたら、あなたが自分でcommitメッセージを書けなくなる
+
+repositoryにどんなcommitがあるのかgit logで見てみる。
+
+エラー fatal:bad default version !HEAD!
+Gitでは現在のcommitをHEADと呼ぶ。このエラーはrepositoryに何もcommitが無いのでコメント履歴を表示
+出来ないと伝えてくれている。
