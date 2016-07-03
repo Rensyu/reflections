@@ -120,3 +120,517 @@ git commit出来たかgit logで確認する。
 git statusを実行してみると、Initial commitの注意書きが消えているはず。
 working areaにrepositoryに登録しなかったファイルが残っている場合には、
 Untracked Files:が表示される。
+
+working areaの変更を全てrepositoryに登録してcommitすると
+git statusでnothing to commit, working directory cleanとなる。
+
+ファイルの内容を変更して、一休みして戻ってくると、どんな変更をしたのか忘れていることがある。
+そこで、git diffを使ってcommitしてから、自分がどんな変更をしたのか正確に見てみる。
+
+working directory,staging area,repositoryが今どんな状態か見てみよう。
+
+repositoryにはcommitがいくつか含まれている。そして、各commitはいくつかのファイルを含んでいる。
+今は最新のcommitの中のgame.jsとindex.htmlに注目する。
+
+staging areaは私が変更をaddするまでは、単に最新のcommitのコピーなのでrepositoryと同じファイルがある。
+
+最期にworking directoryを見てみると、repository、staging areaと同じファイルを持っているが、
+game.jsとindex.htmlを変更した。
+
+git diffを使ってIDを入力して2つのcommitを比較することができるのは知っているが、
+staging areaとworking directoryはcommitではないのでIDを持っていない。
+しかしながら、Gitユーザーがworking directoryとstaging areaを比較したいのは当然なので、
+git diffを引数無しで使うとそれが出来る。
+
+引数無しのgit diffを使うと、working directoryで変更したけど、staging areaにはまだ登録していない
+変更が表示される。
+
+今度はrepositoryの最新のcommitとstaging areaのdifferenceを見たいと思うかもしれない。
+私は、staging areaにaddしたファイルが本当にrepositoryの
+commitに置きたいファイルなのかcommitの直前にダブルチェックとして
+最新のcommitとstaging areaのdifferenceを見たい。
+
+最新のcommitとstaging areaのdifferenceを見るときのコマンドは
+
+git diff --staged
+
+最期に、staging areaのファイルが、本当にcommitに追加したいファイルでは無かった場合、
+そのファイルをstaging areaから取り除くには
+
+git reset --hard
+
+working directoryかstaging areaの変更を破棄する。
+
+しかし、git reset --hardを使う時は注意してください。
+gitの殆どのactionは、いつでも前のcommitに戻れるので可逆ですが、
+working directoryとstaging areaはcommitではないので。
+もしgit reset --hardを使ったら、それらの変更は元に戻せません。
+
+git diffの各フォームはどんな2つのバージョンを比較しますか？
+
+まとめ
+引数無しgit diffはworking directoryとstaging areaを比較
+git diff --stagedはstaging areaと最新のcommitを比較
+git diff commitID1 commitID2はcommitID1とcommitID2を比較
+
+'detatched HEAD'状態から抜けるには
+Lesson1で古いcommitをcheckoutしてから'detatched'状態のままです。
+これを直すには、git checkout masterを実行します。
+(実行前は緑字で((25ede83...))と表示されていたが、実行後はPrevious HEAD position was 25ede83...
+ a couple missing ends with the ipad version　Switched to branch 'master'(master)になった。)
+
+ 今までのLessonのcommit IDは動画と同じだったが、今回のcommit IDは動画と異なるはずだ。
+ 何故なら、commit IDは時間、作者、message等から生成されるから。
+ commit ID生成の詳細は
+ https://git-scm.com/book/en/v2/Git-Internals-Git-Objects
+
+ How can you use the staging area to make sure you have one commit per logical change?
+
+ あなたが論理的変更につき1個のcommitをしたと確認するのに、どのようにstaging areaを使うことができますか？
+
+ まずworking directoryで変更した内容がstaging areaに登録されているか確認する。
+ git diff　引数無しでworking directoryとstaging areaを比較。登録されていなければdiffの
+ 内容が表示される。git addでstaging areaに登録。
+
+ 次にrepositoryの最新のcommitとstaging areaの内容を比較
+ git diff --staged
+ これで最新のcommitとstaging areaの内容が違う場合にはdiffの内容が表示されるので
+ git commitでcommit messageを入力してcommitを作成。
+
+ Branches
+ 今までのところ、各commitは直線上の履歴を作りながら前のcommitの上に作成されてきた。
+
+ 今度はあなたが複数のバージョンに枝分かれするcommit履歴を作りたい場合を見てみよう。
+
+ 直線型の変更をすることは、単にバグを修正したり、新機能を追加したり、ドキュメントを更新するには
+ 十分理に適っています。
+ でも、まだ動作するかどうか分からない試験的な機能を試してみたい、
+ だけどあなたは友人に何に取り組んでいるのか尋ねられた時に、友人に見せるための動作するデモを持ちたい。
+ あるいは、イタリア語を勉強していて、ネイティブ言語バージョンは完全に残したままで、
+ あなたのプロジェクトのイタリア語を話す人用バージョンを作りたいかもしれない。
+この場合には、実際に2言語間を切り替える設定を作りたい。
+
+こういう状況を容易にするために、gitはcommitのラベルを作成することを許可している。
+
+これらのラベルのことをBranchesと呼ぶ。
+
+先ほどの例だと、3つのbranchがいるでしょう。
+第一にmaster。masterは大抵のGit repositoryでメインbranchに与えられる名前で、
+repositoryを新規作成すると必ずGitはmaster branchをあなたのために作成します。
+
+もう一個のbranchはItalianでもう一個はexperimental、或いは省略してexp branchにしましょう。
+
+前回のレッスンで古いcommitにcheckoutした際、'detached HEAD'メッセージが表示されたのを
+覚えていますか？
+基本的に、あの時点で、あなたはbranch名のラベルが付いていないcommitを見ているよとGitは警告しました。
+
+今までは、あなたは、detached HEAD状態か、Gitがあなたのために作成したmaster branchにいました。
+
+発音出来ない文字の羅列というよりはむしろ、上手く行けば人間が読めるようなbranch名を除いて、
+以前にcommitをcheckoutしたのと同じ様にbranchをcheckout出来ます。
+
+もしbranchをcheckoutしてから、commitを作成すると、branchのラベルは自動的に新しいcommitに
+更新する。そのbranchもまたcheckoutされたままなので、再びcheckoutする必要はない。
+
+これが今までbranch upについて何も知らなくても、あなたが何とかmaster branchに留まった理由です。
+
+用語の問題で、branch上の直近のcommitをbranchの先端にいると言う。
+一つのcommitに複数のbranchラベルを付けることは出来るが、commitの新規作成はあなたがcheckout
+したブランチを更新するだけで、その他は放置します。
+
+2つのbranchを1つに結合する方法がないのかと思うのは当然で,その2つのbranchが分岐したので、
+exp branchの試験的機能が遂に動作して、main branchが進んでいるとします。
+
+2つのcommitを結合する過程はmerging(融合、結合)として知られていて、この先のレッスンで
+それにも取り組みます。
+まずbranchの作成とbranchのcheckout,branchへのcommitに慣れましょう。
+
+git branch
+branchを新規作成して表示するのにgit branchコマンドを使用する。
+引数無しでgit branchを使用すると、今いるbranchが表示される。
+表示されたbranch名に*が付いているのが現在checkoutしたbranch
+もし、変更を加えると、更新されるのが＊の付いてるbranch
+
+git branch branch名
+引数にbranch名を与えると、そのbranch名のbranchが新規作成される。
+
+更新されるbranch=*のついてるbranchを切り替えるには、
+git checkout branch名
+
+What are some situations when branches would be helpful
+in keeping your history organized?
+How would branches help?
+
+履歴の整頓するのにbranchが役立つのはどんな状況がありますか？
+branchはどう役に立ちますか？
+
+試験的機能を追加したりデモ動作を試したい、外国語のバージョンを追加したいといった時。
+mainのbranchはmasterとして残したまま、他のバージョンをbranchで分岐させることによって
+プロジェクト全体に影響を与えることなく取り組める。
+
+branchはcontext switchingのように使う。文脈切り替え。
+
+branchを他の人々と働く際に物事を整頓しておくのにも使いたいと思うかもしれない。
+もし、あなたと協力者全員が同じbranchで変更したら、同時に別々の機能に取り組むのは容易ではない。
+人々が一緒にプロジェクトに取り組む一般的なワークフローは、各機能やバグフィックスのbranchを
+新規作成することを含んでいる。
+このように、複数の人が同時に変更に取り組んだら、各自が休憩の後で仕事を続けるために、
+branchをcheckoutすることが出来る。
+それらの下に変更することを気にせずに。
+
+そして、新機能かバグフィックスが一旦完了したら、作者=authorはmasterを更新してbranchの先端を
+指すようにすることも出来る。
+或いは、その間にmasterに変更があったら、Gitとmerge機能を使用して、それを現在のmasterと結合出来る。
+
+mergingの詳細は後で説明する。
+
+asteroidsに宇宙船でcoinにタッチしてコインを集める新機能を追加する。
+
+git checkout coinsでbranch名coinsにcheckoutしてテストプレイしてフィードバック。
+
+Branch coins set up to track remote branch coins from origin.
+
+remote branchは自分で作成したbranch以外のbranchを意味する。
+
+git log --graphコマンドを使うと、Gitはbranch構造を可視化してくれる。
+フラグ--onelineを追加すると出力を短くして見やすくなる。
+どのbranchを可視化したいのか引数として渡す必要がある。
+git log --graph --oneline master coins
+
+各commitは自分の親commitを分かっている。commitが作成された時にcheckoutした参照データを持っている。
+もしcommitを作成した時に、branchにいたとすると、それはまだbranchの先端にあった
+commit IDを格納するだけです。
+commitはbranch名は気にしません。branch自身だけがbranchの位置について記録します。
+Gitによってどんな情報が実際に記録されているのか明らかにするためにダイアグラムに
+親commitを示す矢印を付ける。これはmergingに取り組むときに重要になります。
+
+concept of reachability 到達可能性の概念
+
+branch aとbranch bがある。各branchでgit logを実行すると、branch bのlogは
+どのcommitが表示されるか？
+
+さあ、branchと到達可能性について分かりました。
+前に見た'detached HEAD'メッセージの全容を理解するのに、知っている必要のあることは全部知っています。
+'detached HEAD'メッセージが表示されるのは、branchではなくcommitにcheckoutした時です。
+HEADは現在のcommitを意味しています。
+Gitはまず、you can look around(見回して),make experimental changes and commit them.
+試験的な変更をしてからcommitしてと表示する。
+gitのhistoryは非直線型もあり得るとわかっています。それでもし、変更をcommitすると、
+HEADは今あなたが新規作成したcommitに更新される。
+
+次に、gitはyou can discard any commits that you make in this state without impacting
+any other branches.と表示する。
+あなたは他のbranchに影響を与えることなくどんなcommitでもこの状態で破棄できる。
+
+このcommit(一個だけどのbranchからも離れている)はどのbranchにも含まれていないので
+git lockに表示されない。それは到達不可能です。ここで変更されたことは、どのbranchにも
+表示されません。そして、実際のbranchにcheckoutすると基本的に、そのcommitは存在しないかの
+ようになる。
+
+if you want to create a new branch to retain commits you create,
+you may do so by using git checkout -b new_branch_name
+
+もし、あなたが作成したcommitを保持するための新しいbranchを作成したいなら、
+git checkout -b 新branch名
+を使って出来ます。
+
+git checkout -b 新branch名は2つのコマンドを実行することに等しい。
+第一はgit branch 新branch名
+第二はgit checkout 新branch名
+
+この一連のコマンドは新機能を作成したりするときに頻繁に使うので、ショートカットがあるのはいいですね。
+
+さっきの一個だけ離れたcommitにいる時に、一連のコマンドかショートカットを実行すると、
+そこに新branchが作成されます。その後のcommitはそのbranchに作成されます。
+
+最期のHEAD is now atは、どのcommitに今いるか、どこに作成しているか、をcommitIDの省略型で知らせている。
+
+How do the diagrams help you visualize the branch structure?
+ダイアグラムはブランチ構造を可視化するのにどう役立ちましたか？
+
+branch上のcommitには親がいるので到達可能性がある。
+到達可能性のないcommit=detached HEADは事実上存在しないかのようになてしまうが、
+detached HEADにいる間にgit checkout -b 新branch名か
+第一はgit branch 新branch名
+第二はgit checkout 新branch名
+を実行すると、そのcommitは保持される。
+
+さて、複数のbranchから変更を1つのversionに結合するやり方を見てみましょう。
+
+coin branchが完了したので、その変更をmaster branchと合体させたいと思います。
+その間、master branchに何の変更もなければ、masterとcoin branchが分岐したcommitまで
+戻って、ラベルを今いるとこ(coin branchの先端)に更新すればいいだけ。
+
+しかし、master branchに変更が加えられたので、何とかしてmaster branchとcoin branchを
+結合する必要があります。そして両方のbranchから全ての変更を含んだ一個のversionを作成する
+必要があります。
+
+ gitは実際にmaster branchを自動でcoin branchと結合出来て、かなり感動的です。
+
+ これがどう動作するのか理解するために、最初に単純な例を見てみましょう。
+ 同じファイルの2つのコピーをJakeとRachelという2名の人が独立して編集しているとします。
+ 一日の始めに、彼らは2人とも同じversionのファイルからスタートします。
+ 一日を通じて、彼らはそれぞれ変更を加えます。多分、行を足したり削除したりして。
+ 一日の終わりに、ファイルのJakeバージョンは、何行かコンテンツを含んでいます。
+ それをB,D,Eと呼びましょう。もちろん現実では、これらはコードだったりレシピの指示かもしれません。
+ でも今は特定のコンテンツについて考えたりして手こずらないで、ファイルのバージョンを結合する
+ やり方に集中出来るようにアルファベットの記号を代わりに使います。
+ 同様にRachelのバージョンも何行か含んでいます。A,B,C,Dです。
+ さて、JakeとRachelは彼らの2つのファイルを結合して両方の変更を取り込んだ1つのversionに
+ したいとします。
+ 各行について、あなたはそれが最終的なファイルに存在するべきと思うかどうか。
+ もし、その行が間違いなく最終ファイルに含まれると思えばYes.
+ 間違いなく含まれないと思えば、NO,今あなたが持っている情報からではこれを想像出来ない場合は
+ Unknownを入れなさい。
+　これは難しいクイズなので、最初の挑戦で正解にならなくても心配しないで。
+ ベストを尽くして、各行は独立していることについて考えて。
+
+ あなたはRachelのファイルにA行があるから、最終ファイルに含めるのが安全と考えたのかもしれない。
+ しかしながら、JakeはA行を削除したのでA行が彼のファイルに含まれていなかったらどうする？
+ あなたが意図的に削除した行が復活するのは、イライラするでしょう。
+
+ あなたはJakeのファイルにA行が無いから、最終ファイルに含めるべきではないと考えたのかもしれない。
+ しかしながら、Rachelが一日かけてA行を追加していたらどうする？
+
+ 両方のファイルにある同一行は最終ファイルに含まれる。
+ 両方のファイルから削除された行は最終ファイルに含まれない。
+ 片方のファイルにだけある行が最終ファイルに含まれるかどうかは分からない。
+
+ RachelのファイルはA行がある。Jakeのには無い。こうなる場合は何通りかある。
+ オリジナルのファイルにA行は無かったけど、Rachelが追加したかもしれない。
+ その場合には、私達は本当にA行を最終ファイルに欲しい。
+ しかしまた、オリジナルのファイルにA行があったけど、Jakeが削除したかもしれない。
+ その場合には、最終ファイルにA行を含めるべきではない。
+ あとで何時でもA行を削除できるのだから、A行を含めるのが一番安全と思うかもしれない。
+ でも、このアルファベットの記号はコードを表しているかもしれないのだから、削除した行を
+ また追加するとバグを起こしかねない。
+ だから、これ以上の情報が無いとAが最終バージョンに含まれるか含まれないのか分からない。
+
+ この例には、最終ファイルに含まれるのかどうか本当に分からない行が何行かありました。
+ 何故なら、その行は一人によって追加されたか、もう一人の人に削除されたかで、どっちがどっち
+ か分からないからです。
+
+ この問題をどうやって解決しますか？
+ ファイルがその日の最初にどんなふうに見えたか知ることは間違いなく役立ちます。
+ もしオリジナルのファイルがこんな風に、A,B,D行あったら、
+ これらのunknownな行を最終ファイルに含むのか含まないのか決定できますか？
+ もう一度、これは難しい質問です。どうやって私が解くかです。
+ JakeのファイルにあってRachelのファイルにはない行は、
+ Jakeがその作業を追加したかどうか、或いはRachelが削除したかどうか、またその逆について
+ 私は見当を付けます。
+
+ 1日の始めは、A行がありました。RachelのファイルにはまだAがあるので、彼女はA行に関して
+ 何もしませんでした。しかしJakeのファイルにA行はありません。つまりJakeはA行を削除したこと
+ を意味します。なので、私達はA行は最終ファイルに含めません。
+
+ 1日の始めにC行はありませんでした。Jakeのファイルにもありません。でもRachelのファイルには
+ C行があります。彼女がC行を追加したことがわかります。なので私達はC行を最終ファイルに含めます。
+
+ E行も同じです。一日の始めにE行はありませんでした。でもJakeのファイルにはあります。
+ JakeがE行を追加したことがわかります。私達はE行を最終ファイルに含めます。
+
+今は、merging戦略が単純なファイルにとってどんなふうに見えるか実感があるでしょう。
+あなたに2つのbranchを一緒にmergeするのを許可するために、このタイプの戦略をGitがどのように使用するのか
+見てみましょう。
+
+今すぐに、私は自分のcoin branchとmaster branchが結合したバージョンを作成したいとします。
+もしGitにある全部がこの2つのcommitだったら、それらを一緒にmergeするやり方は分からないでしょう。
+ちょうど、さっきJakeが行を追加したのか、Rachelが行を削除したのかわからなかったように。
+
+幸運にも、Gitはまたコードが2つのbranchに分岐する以前はどんなふうだったかということも
+記録を取っている。
+
+これはRachelとJakeが一日の始めに持っていたファイルに類似しています。
+この3つのcommit(分岐点のcommitとcoin branchの先端のcommitとmasterの最新より1個前のcommit)
+を使って、Gitはあなたが以前使ったのと似たような戦略で2つのbranchの結合バージョンを作成出来ます。
+commitはGitの基本的なブロックですので、この2つのbranchの結合バージョンもまたcommitであることは
+あなたにとって、そんなに驚きではないかもしれない。
+しかし、この新しいcommitの親commitは何ですか？
+結合commitを作成するのにGitを使用する時、その結合commitは両方の親commitについて情報を記録する。
+なので、私は矢印を両方に追加する。
+coins branchからmaster branchにコンテンツを取得することが、このmergeのゴールなので、
+私はこの新規commitをmaster branchの先端にしたい。master branchは最新にアップデートされた
+branchなので。
+Git実践者はこのプロセスをcoins branchをmaster branchにmergingするとよく言う。
+
+mergeのあとで、master branchは以前に加えられたものにcoins branchからの変更をプラスした
+全変更を含みます。
+
+私が依然、古いcommitにアクセス出来るのを除けば、coins branchからの全変更と一緒に
+新規commit作成するようなものです。
+
+もし我々がこの時点、コインbranchの最後の時点、そしてマスターbranchの最先端の時点にコミットする時でのファイルの状態を取った時に我々が見るものは異なるということに留意してください。
+
+それがする事の全ては基本的にmasterをcoins branchを同じ状態にセットすることだが、それが我々がしたいことではありません。
+我々はこれらの変更を全部、同様に所持していたい。一旦2つのbranchを成功裏にmergeすると、我々は気軽にこのコミットに照会する必要はもう無くなるだろう。我々はそれにmaster branchを通じて達することができます。
+だから、一旦mergeすると、我々はcoin branchを削除することが出来ます。
+我々がbranchの削除について話す時は、そのラベルを削除することを意味していることに留意してください。
+commitは履歴の中に依然として存在しています。
+しかしながら、もし、そのcommitに達することができるbranchが無かったら、branchを削除することは
+効果的にそのcommitを破棄します。
+だから、もしcoin branchを最初にmergeしないで削除したら、あなたは本質的には、これらのcommit全てに達することがでなくなるので、これらのcommitを見捨てることになります。
+merge commitを作成した後に、もしmaster branchでgit logを実行したらどのcommitが含まれると思いますか？
+隣にチェックボックスがある各commitに、それが含まれるか含まれないかチェックしてみましょう。
+
+もし、あなたが、どんな順番でこれらのcommitがリストに入るのか疑問なら、それらはtimestampによって分類されます。
+
+隣にチェックボックスがないcommiteも含め、これらのcommit全部がlogに表示されます。
+あなたが全部のボックスにチェックを入れるのがちょっと退屈だと思ったので。
+
+一方このcommit含まれません。なぜならば、このcommit(masterの最先端)から到達不可能だからです。
+あなたは、2つの通り道(branch)があるので、どんな順番でGitがこのcommitを表示するか不思議に思ってるかもしれません。
+答えは、commitはそれが作成された時間で分類される、です。
+なので、2本のbranchからのcommitは交互配置で表示されます。
+さて、キャロラインがあなたをエスコートして実際にmergeとbranchの削除をします。
+
+サラ、ありがとう。さて、私はcoin branchとmaster branchを一緒にmergeしたいです。
+mergeした後で、私はmaster branchを更新して、merged versionとして指定したいです。
+それで、もし私がまだmaster branchをcheckoutしていなかったら、今check outします。
+ちょっと確認します。そして、はい、私は既にmaster branchにいますね。
+git merge master coins
+を2本のbranchのmerged versionを作成するために実行します。
+Enterを入力すると、私のエディターがpop upしてmerge commit用のcommit messageがタイプできます。
+その他のcommitとは違って、これはデフォルトcommitメッセージが入力済です。Merge branch coins.
+これは変更したければ変更出来ます。でも私が2本のbranchをmergeしたと分かりやすくするために、
+このままにしておきます。なので、私はこのままにしておきます。
+そしてgitはmergeしてgame.jsファイルが変更されたことを知らせてくれます。
+もしgit logを実行すると、merge commitが見れます。
+さて、それが動作するかテストに進みましょう。
+もし動作したら、コードを実行したら色とコインの両方が見れるでしょう。
+ええ、私は色とここにコインがあるのが見えます。どうやらmergeが正確に動作したようです。
+あなたはコインが他のゲームのようにカラフルではないと気づいたかもしれません。それは正しいです。
+Gitはあなたが行った小さな変更だけmergeします。そしてこのコインを加えるコードは非カラフルバージョンを加えました。
+さあ、再びgit logを実行してみると、私はまたmerge commitと私とDougによって加えられたこれらのcommitを見られます。そしてまた、私とDougのcommitの間にSarahによるcommitもあります。
+commitはそれが作成された時間で分類されるので。
+さて、これは面白い副作用をgit diffに引き起こします。
+私がこの2つのcommitのdifferenceを見たいとしましょう。
+私はそれが出来ますし、その2つのdiffernceが見れるでしょう、しかし、このcommitはこれのparentではありません。
+だから私はこのcommitによってもたらされた変更だけ見ることは出来ません。
+試してみましょう。ご覧のように、このdiffにはかなりの数の変更点があります。
+でも、実際には、このcommitの変更はほんの少しでした。このcommitによる変更点だけ見るには、そのparentに対して
+diffを実行しなければなりません。
+でも、どうやったらそのparentが分かりますか？
+さらに、gitはgit showあるcommitにより、どんな変更がそのparentに対してなされたのかというコマンドを含んでいる。
+なので、実際にそのparentが何か知らなくても私はこのcommitとそのparentのdiffを見ることが出来ます。
+今度は、ずっと小さなdiffですね。
+coin branchはもう必要ないので、私は
+git branch -d coins
+コマンドを使って削除しようと思います。
+dはdeleteを意味します。
+これはbranchの中のcommitは削除しません。単にラベルだけ削除します。
+それはcommitを見つけにくくするかもしれません。
+でも、これらのcommitは今やmaster branchから到達可能なので、問題ありません。
+gitが私がbranchを削除したことを知らせてくれているのがここに見えますね。
+merge commitの作成を練習するために、もし、私と一緒にやっていなかったら私のステップを自分のPCで繰り返して見て下さい。
+オプションとして、もし興味があれば、コインを固体と黄色にする新しいcommitを導入することも出来ます。
+でもこれはオプションなので、JavaScriptの経験は要求されません。
+もし、コインを固体と黄色にしたければ、両方のbranchによって何がコードにもたらされたか見るのに
+git diffとgit showを使うことをオススメします。
+その他の点では、もしあなたが好奇心があれば、解答ビデオにこのcommitの作り方が含まれています。
+
+自分のPCでbranchをmergeしましたか？正しいオプションを選択してください。
+もし、コインを黄色にするやり方を見たければ解答ビデオをチェックしてください。
+
+
+coins branchをチェックアウトする。
+もし、あなたがcoins branchをチェックアウトしてない場合は、coins branchに参照出来るようになる前に
+今git check out coinsのコマンドでチェックアウトする必要があります。
+それが完了したら、チェックアウトしたままにしておくか、mergeを完了するまえに他のbranchにチェックアウトするか
+決定します。
+
+git mergeに関する注意
+git mergeはまた、現在チェックアウトしているbranchもmerged versionに含めます。
+だから、もしあなたがbranch1にチェックアウトして、
+git merge branch2 branch3
+を実行するとmerfed versionはbranch1をbranch2とbranch3同様に結合します。
+それはつまり、あなたがbranch1からの変更をそのmergeに含めたくないとは考えにくいので
+branch1のラベルはmerge commitを作成したあとで更新されるからです。
+この理由により、あなたは常にmergeしようと計画している2本のbranchのうち1本に、mergeする前に
+チェックアウトすべきです。2本のうちどちらにチェックアウトすべきかは、あなたが、どっちのbranchラベルを新規commitに差し向けたいかということ次第です。
+
+チェックアウトされたbranchは常にmergeに含まれるので、あなたが2本のbranchをmergeする時はコマンドラインで
+git mergeの引数としてbranch名を両方指定する必要はないのでは？と思うかもしれません。
+もしあなたが、branch2をbranch1にmergeしたいとして、あなたは単にgit checkout branch1として
+次にgit merge branch2とタイプします。git merge branch1 branch2とタイプする唯一の理由はどっちのbranchをあなたがmergeしようとしているかあなたに思い出させやすくするためです。
+
+また、2本のbranchがmergeされるので、コマンドラインに入力された順番は重要ではありません。
+キーは、git mergeは常に、特定されたbranchを現在チェックアウトしているbranchにmergeしてそのbranchのために
+新規commitを作成するということを覚えておくことです。
+
+Merge conflict マージの衝突
+もしこのようなメッセージが表示されたら
+
+Auto-merging game.js
+CONFLICT (content): Merge conflict in game.js
+Automatic merge failed; fix conflicts and then commit the result.
+
+あなたがmergeを開始した時に、あなたのファイルはキャロラインのファイルと同じ状態ではないということです。
+これを治すには、以下の手順を完了してください。
+1.あなたがmergeを開始する前の状態にファイルを復元します。 git merge --abort
+2.あなたおファイルの状態をダブルチェックします。もしmaster branchにチェックアウトしている時にgit logを
+実行すると、あなたはキャロラインの"Add color"commitが最新のcommitの次に見えて、最新のcommitはbullet bugを修正したあなたのcommitです。
+もしgit diffをあなたのcommitとキャロラインのcommitに使うとあなたのcommitは424行目にthis.delayBeforeBullet = 10; があります。この行は下の行と同じレベルに(TAB無し)スペースだけ使って
+インテントされていてその行はその後ろにスペースがありません。
+3.あなたのファイルが正常に戻ったら、あなたの変更の新規commitを作成します。
+4.mergeをもう一度試してみましょう。
+
+Merge conflict マージの衝突（WindowsとUnixシステム間の改行文字）
+背景：私達がキーボードの"Enter"キーを入力すると、私達は常に新しい行が存在すべきであることを指す不可視文字をテキストファイルに挿入しろとPCに指示しています。
+Unixシステムは"ラインフィード”文字かLFか\nと呼ばれる文字を加えて、Windowsシステムは2文字、"キャリッジリターン”と"ラインフィード"或いはCRLF,\r\nを加えています。
+
+キャロラインのLFを使用するMac OSXで編集されたファイルなのでLFが挿入されています。
+もし、Windowsユーザーがキャロラインのファイルを編集しようとすると、Windowsのテキストエディタはファイルを編集できるように全てのLFをCRLFに変換するかもしれません。Windowsユーザーが自分のファイルとキャロラインのファイルを一緒にmergeしようとすると、merge conflictが異なるLFとCRLF文字によって発生します。
+
+この問題を解決するには、Windowsユーザーはglobal autocrlfの属性をtrueにセットしてください。
+git config --global core.autocrlf true
+
+更に詳しい情報はこちら。
+ https://help.github.com/articles/dealing-with-line-endings/#platform-all
+
+commitをparentと比較する
+
+キャロラインがcommitをparentと比較するのに使ったのは
+git show commit_id
+
+コインを黄色にするには、最初にcolorのcommitで導入された変更を見るためにgit showを使います。
+スクロールして下がっていくと、Shipの中に、colorがnavyとsolidがtrueに設定されているのが見えます。
+同様にAsteroidの中に、colorがlightgrayでsolidがtrueに設定されているのが見えます。
+それは多分、coinオブジェクトにこれと同じような行を追加すべきだということを意味しています。
+次に、私はcoinが導入される前の最初のcommitと最終的なcoinのcommitを比較したいです。
+私はそれらのIDを
+git log --graph --oneline
+を使用して見つける事ができます。
+そして、git diffを使って、ここにあるcoin branchの前の最後のcommitと、ここにあるcoinの最新のcommitを
+比較します。
+そして少しスクロールで下がると、沢山の変更がありますが、coinがここで導入されたのが見えます。
+そこでgame.jsファイルを開いてcoinを検索します。
+そして、正確な場所を見つけたら、行を追加します。
+this.color = 'yellow';
+this.solid = 'true';
+そしてファイルをセーブして動作するかどうかチェックしてみます。
+ここに黄色いコインがあります、上手くいってますね。
+そこで、git diffを使って自分の変更をダブルチェックします。
+そしてgit add game.jsで追加してgit commitでcommitします。
+私はcommitメッセージにMake coins yellowを使用します。
+
+評価:2本のbranchをマージする
+さあ、あなたはbranchをマージするGitの使い方を学びました。以下の質問とあなたの考えをreflection fileに追加してみましょう。
+
+2本のbranchを一緒にマージした結果はどうでしたか？なぜ我々はそれを図に、私たちのやり方を表しているのですか？
+
+2本のbranchをマージすると、各commitの作成時系列に並んで1本のbranchになって、新規merge commitが先端に作成された。
+Gitによってどんな情報が実際に記録されているのか明らかにするためにダイアグラムに親commitを示す矢印を付けた。
+
+
+また、あなたはファイルの変更をcommitしたいかもしれません。進む準備ができたらNextをクリックして
+Sarahが何故、この自動mergeプロセスがいつも出来るとは限らないのか、そして何が代わりに起こるのかを説明してくれます。
+
+
+
+
+
+
+
+
+
+ 　
