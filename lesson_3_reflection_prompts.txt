@@ -10,7 +10,7 @@ automatically stay up-to-date with your remote repository?
 
 Gitが自動でリモートリポジトリを最新の状態にしてくれるよりもなぜ、あなたはいつも変更を手動でpullしたいのですか？
 
-自動だと衝突が起きることがあるから。
+自動だと衝突が起きることがあるからかな。
 
 Describe the differences between forks, clones, and branches.  When would you
 use one instead of another?
